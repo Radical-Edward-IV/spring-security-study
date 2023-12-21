@@ -1,0 +1,53 @@
+<nav class="site-nav" th:fragment="navFragmant" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="container">
+        <div class="menu-bg-wrap">
+            <div class="site-navigation">
+                <a href="/index" class="logo m-0 float-start">Data Standards</a>
+
+                <ul class="js-clone-nav d-none d-lg-inline-block text-start site-menu float-end">
+                    <li class="active"><a href="/index">Home</a></li>
+                    <li class="has-children">
+                        <a href="javascript:void(0)">표준 데이터</a>
+                        <ul class="dropdown">
+                            <!-- <li><a href="#">표준 단어</a></li> -->
+                            <li class="has-children">
+                                <a href="#">표준 단어</a>
+                                <ul class="dropdown">
+                                    <li><a href="#">사전 조회</a></li>
+                                    <li><a href="#">단어 정의</a></li>
+                                </ul>
+                            </li>
+                            <li class="has-children">
+                                <a href="#">표준 도메인</a>
+                                <ul class="dropdown">
+                                    <li><a href="#">사전 조회</a></li>
+                                    <li><a href="#">도메인 정의</a></li>
+                                    <li><a href="#">Group / Infotype</a></li>
+                                </ul>
+                            </li>
+                            <li class="has-children">
+                                <a href="#">표준 용어</a>
+                                <ul class="dropdown">
+                                    <li><a href="#">사전 조회</a></li>
+                                    <li><a href="#">용어 정의</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- <li><a href="services.html">Services</a></li> -->
+                    <li><a href="/about-view">About</a></li>
+
+                    <li>
+                        <a sec:authorize="!isAuthenticated()" href="/signin-view">Sign in</a>
+                        <span sec:authorize=""></span>
+                    </li>
+                </ul>
+
+                <a href="#" class="burger light me-auto float-end mt-1 site-menu-toggle js-menu-toggle d-inline-block d-lg-none"
+                   data-toggle="collapse" data-target="#main-navbar">
+                    <span></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>

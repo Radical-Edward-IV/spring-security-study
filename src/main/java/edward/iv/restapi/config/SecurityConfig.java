@@ -75,6 +75,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         // Service
                         .requestMatchers(new MvcRequestMatcher(introspector, "/api/v1/auth/**")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/index")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/signin-view")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/about-view")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/static/**")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/css/**")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/fonts/**")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/images/**")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/javascript/**")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/scss/**")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/favicon.png")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

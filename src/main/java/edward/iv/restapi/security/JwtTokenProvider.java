@@ -23,12 +23,16 @@ public class JwtTokenProvider {
     @Value(value = "${app.jwtExpirationInMs}")
     private long jwtExpirationInMs;
 
+//    @Value(value = "${app.jwtRefreshExpirationInMs}")
+//    private long jwtRefreshExpirationInMs;
+
     public String generateToken(Authentication authentication) {
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+//        Date refreshExpiryDate = new Date(now.getTime() + jwtRefreshExpirationInMs);
 
         /*
          * 1. Token 구조

@@ -9,6 +9,7 @@ import edward.iv.restapi.payload.response.ApiResponse;
 import edward.iv.restapi.role.Role;
 import edward.iv.restapi.role.RoleName;
 import edward.iv.restapi.role.repository.RoleRepository;
+import edward.iv.restapi.security.UserPrincipal;
 import edward.iv.restapi.user.dto.AddressDto;
 import edward.iv.restapi.user.dto.UserDto;
 import edward.iv.restapi.user.model.Address;
@@ -39,6 +40,12 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
 
     private final AddressRepository addressRepository;
+
+    @Override
+    public UserPrincipal getUserById(Long id) {
+        User user = userRepository.getReferenceById(id);
+        return UserPrincipal.create(user);
+    }
 
     @Override
     public List<User> getUsers() { return userRepository.findAll(); }

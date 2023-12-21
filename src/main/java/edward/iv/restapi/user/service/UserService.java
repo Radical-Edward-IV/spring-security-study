@@ -1,6 +1,7 @@
 package edward.iv.restapi.user.service;
 
 import edward.iv.restapi.payload.request.SignUpRequest;
+import edward.iv.restapi.security.UserPrincipal;
 import edward.iv.restapi.user.dto.UserDto;
 import edward.iv.restapi.user.model.User;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,8 @@ import java.util.List;
 
 @Service
 public interface UserService {
+
+    public UserPrincipal getUserById(Long id);
 
     public List<User> getUsers();
 

@@ -1,0 +1,161 @@
+<!-- /*
+* Template Name: Property
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="Untree.co" />
+  <link rel="shortcut icon" href="favicon.png" />
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap5" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/fonts/icomoon/style.css" />
+  <link rel="stylesheet" href="/fonts/flaticon/font/flaticon.css" />
+
+  <link rel="stylesheet" href="/css/tiny-slider.css" />
+  <link rel="stylesheet" href="/css/aos.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+
+  <title>
+    Data Standards &mdash; Created by Killer Whale
+  </title>
+</head>
+
+<body>
+  <div th:replace="~{/mobile-navigation :: mobileNavFragment}"></div>
+
+  <div th:replace="~{/navigation :: navFragmant}"></div>
+
+  <div class="hero page-inner overlay" style="background-image: url('/images/data_bg_04.jpg')">
+    <div class="container">
+      <div class="row justify-content-center align-items-center">
+        <div class="col-lg-9 text-center mt-5">
+          <h1 class="heading" data-aos="fade-up">Sign in to Data Standards</h1>
+
+          <nav aria-label="breadcrumb" data-aos="fade-up" data-aos-delay="200">
+            <ol class="breadcrumb text-center justify-content-center">
+              <li class=""><a href="">New to DataStandards? <span style="color: skyblue;">Create an account</span>.</a></li>
+              <!-- <li class="breadcrumb-item active text-white-50" aria-current="page"><a href="">Join</a></li> -->
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-5 mb-lg-0" data-aos="fade-up" data-aos-delay="100">
+          <div class="contact-info">
+            <div class="address mt-2">
+              <i class="icon-room"></i>
+              <h4 class="mb-2">Location:</h4>
+              <p>48.702971, -122.906315</p>
+            </div>
+
+            <!-- <div class="open-hours mt-4">
+              <i class="icon-clock-o"></i>
+              <h4 class="mb-2">Open Hours:</h4>
+              <p>
+                Sunday-Friday:<br />
+                11:00 AM - 2300 PM
+              </p>
+            </div> -->
+
+            <div class="email mt-4">
+              <i class="icon-envelope"></i>
+              <h4 class="mb-2">Email:</h4>
+              <p>https://github.com/BlackSocks1993</p>
+            </div>
+
+            <div class="phone mt-4">
+              <i class="icon-phone"></i>
+              <h4 class="mb-2">Call:</h4>
+              <p>+82 10-1234-5678</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
+          <form action="javascript:signIn()">
+            <div class="row">
+              <div class="col-12 mb-3">
+                <input id="username" type="text" class="form-control" placeholder="Username" />
+              </div>
+              <div class="col-12 mb-3">
+                <input id="password" type="text" class="form-control" placeholder="Password" />
+              </div>
+              <div class="col-12" style="text-align: center;">
+                <input type="submit" value="Sign in" class="btn btn-primary" />
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.untree_co-section -->
+
+  <div class="site-footer" th:insert="~{/footer :: footerFragment}"></div>
+  <!-- /.site-footer -->
+  
+  <!-- Preloader -->
+  <div id="overlayer"></div>
+  <div class="loader">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  
+  <script src="/javascript/bootstrap.bundle.min.js"></script>
+  <script src="/javascript/tiny-slider.js"></script>
+  <script src="/javascript/aos.js"></script>
+  <script src="/javascript/navbar.js"></script>
+  <script src="/javascript/counter.js"></script>
+  <script src="/javascript/custom.js"></script>
+  <script>
+    function signIn() {
+
+      const type = "POST";
+      const url  = "/api/v1/auth/signin";
+      const data = JSON.stringify({
+        "username": document.querySelector('#username').value,
+        "password": document.querySelector("#password").value
+      });
+
+      const xhr  = new XMLHttpRequest();
+
+      xhr.open(type, url, true);
+      xhr.setRequestHeader("Content-type", "application/json; charset=UTF=8");
+      xhr.send(data);
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.response);
+
+          let cookie  = "accessToken=" + response.accessToken + ";";
+              cookie += "tokenType="   + response.tokenType   + ";";
+              cookie += "max-age=" + 600;
+
+          document.cookie = cookie;
+
+          window.location.href = "/index?username=" + document.querySelector('#username').value;
+        }
+        else console.log("Login Failed..;");
+      }
+    }
+  </script>
+</body>
+
+</html>

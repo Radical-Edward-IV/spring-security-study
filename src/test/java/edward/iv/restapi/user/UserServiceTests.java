@@ -1,20 +1,23 @@
 package edward.iv.restapi.user;
 
+import edward.iv.restapi.payload.request.SignUpRequest;
 import edward.iv.restapi.role.Role;
+import edward.iv.restapi.user.dto.AddressDto;
 import edward.iv.restapi.user.dto.UserDto;
 import edward.iv.restapi.user.model.User;
 import edward.iv.restapi.user.repository.UserRepository;
+import edward.iv.restapi.user.service.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.OngoingStubbing;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static edward.iv.restapi.role.RoleName.ADMIN;
@@ -28,19 +31,25 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTests {
 
+    // 의존성을 필요로 하는 Field에 사용하며, @Mock이나 @Spy 애노테이션이 붙은 Field를 주입해준다.
+    @InjectMocks
+    private UserService userService;
+
     @Mock
     private UserRepository userRepository;
 
     private List<User> userMemoryRepository;
 
-//    @BeforeEach
-//    void setUserRepository() {
-//    }
-
     @BeforeEach
     void setMockObj() {
 
-        userMemoryRepository = List.of(
+        /*
+         * Arrays.of() 메소드는 Fixed-size list를 반환합니다.
+         * add() 메소드를 사용할 경우 java.lang.UnsupportedOperationException이 발생합니다.
+         */
+        userMemoryRepository = new ArrayList<>();
+
+        userMemoryRepository.addAll(Arrays.asList(
                 new User()
                         .setId(1L)
                         .setFirstName("Edward Se Jong Pepelu Tivrusky")
@@ -104,7 +113,7 @@ public class UserServiceTests {
                         .setEmail("junny@email.com")
                         .setAddress(null)
                         .setRole(new Role(USER))
-        );
+        ));
 
         when(userRepository.findAll()).thenReturn(this.userMemoryRepository);
 
@@ -116,21 +125,37 @@ public class UserServiceTests {
         });
 
         when(userRepository.existsByUsername(any(String.class))).then(invocation -> {
+
             String username = invocation.getArgument(0, String.class);
-            return userMemoryRepository.stream().filter(user -> {
-                return user.getUsername().contains(username);
-            }).collect(Collectors.toList());
+
+            return userMemoryRepository.stream().filter(user -> username.equals(user.getUsername()))
+                    .findFirst().isPresent();
         });
+    }
+
+    @Test
+    void userAddTest() {
+
+        AddressDto address = new AddressDto("Test01", "Test02", "City", "State", "ZipCode");
+
+        SignUpRequest signUp = new SignUpRequest();
+        signUp.setFirstName("In");
+        signUp.setLastName("Im");
+        signUp.setUsername("db_admin003");
+        signUp.setPassword("1q2w3e4r!");
+        signUp.setPhone("010-9876-5432");
+        signUp.setEmail("auto-q@email.com");
+        signUp.setAddress(address);
+
+        userService.addUser(signUp);
     }
 
     @Test
     void mockTest() {
 
-        // UserRepository.findAll();
-//        List<User> users = this.userRepository.findAll();
-//        Assertions.assertEquals(7, users.size());
+        List<User> users = this.userRepository.findAll();
+        Assertions.assertEquals(7, users.size());
 
-        // UserRepository.save(User user);
         User user = new User()
                 .setId(8L)
                 .setFirstName("In")
@@ -142,7 +167,9 @@ public class UserServiceTests {
                 .setRole(new Role(USER));
         User savedUser = userRepository.save(user);
 
+        boolean existsUser = userRepository.existsByUsername("db_admin003");
+
         Assertions.assertEquals(8, userMemoryRepository.size());
-//        Assertions.assertEquals(savedUser, userRepository.findByUsername("db_admin003"));
+        Assertions.assertTrue(existsUser);
     }
 }
