@@ -60,8 +60,11 @@ public class SecurityConfig {
                  * ALWAYS: 항상 Spring Security가 세션 생성
                  * NEVER: Spring Security가 생성하지 않고 존재할 경우에 사용
                  * STATELESS: Spring Security가 생성하지도 않고 존재할 경우에도 사용하지 않음
+                 *
+                 * 로그인 시 SecurityContext에 인증 정보를 저장하고 Redirect 합니다.
+                 * STATELESS 정책으로 인증 정보가 세션에 저장되지 않아 Spring Security와 연동된 Thymeleaf 엔진의 표현식(isAuthenticated)이 동작하지 않습니다.
                  */
-                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션에 인증(Authentication) 정보를 저장하지 않음
+//                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션에 인증(Authentication) 정보를 저장하지 않음
                 // h2-console 접속을 위한 설정
                 .headers(config -> config.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 // 동일한 도메인에서만 iframe 접근 허용
@@ -75,7 +78,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         // Service
                         .requestMatchers(new MvcRequestMatcher(introspector, "/api/v1/auth/**")).permitAll()
-                        .requestMatchers(new MvcRequestMatcher(introspector, "/index")).permitAll()
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/home")).permitAll()
                         .requestMatchers(new MvcRequestMatcher(introspector, "/signin-view")).permitAll()
                         .requestMatchers(new MvcRequestMatcher(introspector, "/about-view")).permitAll()
                         .requestMatchers(new MvcRequestMatcher(introspector, "/static/**")).permitAll()
@@ -92,7 +95,16 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider())
                 // 인증되지 않은 사용자의 요청을 처리
 //                .exceptionHandling(config -> config.authenticationEntryPoint(unauthorizedHandler))
-                .httpBasic(Customizer.withDefaults());
+                .httpBasic(Customizer.withDefaults())
+                .formLogin(config -> {
+                    config.loginPage("/sign-in")
+                          .loginProcessingUrl("/signin-process")
+                          .defaultSuccessUrl("/home", true);
+                })
+                .logout(config -> {
+                    config.logoutUrl("sign-out")
+                          .logoutSuccessUrl("/signin-view");
+                });
 
         return http.build();
     }

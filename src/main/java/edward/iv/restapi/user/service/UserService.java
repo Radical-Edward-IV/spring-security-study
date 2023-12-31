@@ -23,5 +23,5 @@ public interface UserService {
 
     UserDto addUser(SignUpRequest signUpRequest);
 
-    UserDto updateUser(String username, SignUpRequest user, UserDto currentUser);
+    UserDto updateUser(SignUpRequest user, UserDto currentUser);
 }

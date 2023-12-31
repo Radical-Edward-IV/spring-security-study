@@ -1,6 +1,5 @@
 package edward.iv.restapi.view;
 
-import edward.iv.restapi.security.CurrentUser;
 import edward.iv.restapi.security.JwtTokenProvider;
 import edward.iv.restapi.security.UserPrincipal;
 import edward.iv.restapi.user.service.UserService;
@@ -20,23 +19,8 @@ public class ViewController {
 
     private final UserService userService;
 
-    @GetMapping("/index")
-    public String getIndexView(@CookieValue(name = "accessToken", required = false) String accessToken, Model model) {
-
-        Long userId;
-
-        if (accessToken != null) {
-            jwtTokenProvider.validateToken(accessToken);
-
-            userId = jwtTokenProvider.getUserIdFromJWT(accessToken);
-
-            UserPrincipal user = userService.getUserById(userId);
-
-            model.addAttribute("username", user.getUsername());
-        }
-
-        return "index";
-    }
+    @GetMapping("/home")
+    public String getIndexView() { return "home"; }
 
     @GetMapping("/signin-view")
     public String getSignInView() {

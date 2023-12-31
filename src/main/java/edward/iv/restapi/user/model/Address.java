@@ -1,6 +1,7 @@
 package edward.iv.restapi.user.model;
 
 import edward.iv.restapi.base.audit.BaseAudit;
+import edward.iv.restapi.user.dto.AddressDto;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -41,4 +42,13 @@ public class Address extends BaseAudit {
     @OneToOne
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
     private User user;
+    
+    public void updateAddressByDto(AddressDto srcAddr) {
+
+        if (srcAddr.getAddressLine01() != null) this.setAddressLine01(srcAddr.getAddressLine01());
+        if (srcAddr.getAddressLine02() != null) this.setAddressLine02(srcAddr.getAddressLine02());
+        if (srcAddr.getCity() != null) this.setCity(srcAddr.getCity());
+        if (srcAddr.getState() != null) this.setState(srcAddr.getState());
+        if (srcAddr.getZipCode() != null) this.setZipCode(srcAddr.getZipCode());
+    }
 }

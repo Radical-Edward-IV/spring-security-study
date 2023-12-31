@@ -10,13 +10,18 @@ import edward.iv.restapi.role.Role;
 import edward.iv.restapi.role.RoleName;
 import edward.iv.restapi.role.repository.RoleRepository;
 import edward.iv.restapi.security.JwtTokenProvider;
+import edward.iv.restapi.security.UserPrincipal;
 import edward.iv.restapi.user.dto.UserDto;
 import edward.iv.restapi.user.model.Address;
 import edward.iv.restapi.user.model.User;
 import edward.iv.restapi.user.repository.AddressRepository;
 import edward.iv.restapi.user.repository.UserRepository;
 import edward.iv.restapi.user.service.UserService;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.websocket.Session;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +29,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +53,8 @@ public class AuthController {
     private final JwtTokenProvider jwtTokenProvider;
 
     private final UserService userService;
+
+    private final UserDetailsService userDetailsService;
 
     @PostMapping("/signin")
     public ResponseEntity<JwtAuthenticationResponse> authenticationUser(@Valid @RequestBody SignInRequest signInRequest) {

@@ -2,7 +2,10 @@ package edward.iv.restapi.user.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edward.iv.restapi.base.audit.BaseDateTimeAudit;
+import edward.iv.restapi.exception.BadRequestException;
+import edward.iv.restapi.payload.request.SignUpRequest;
 import edward.iv.restapi.role.Role;
+import edward.iv.restapi.user.dto.UserDto;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -82,6 +85,16 @@ public class User extends BaseDateTimeAudit {
         this.address = address;
         address.setUser(this);
         return this;
+    }
+
+    public void updateUserBySignUpRequest(SignUpRequest srcUser) {
+
+        if (!this.firstName.equals(srcUser.getFirstName()) || !this.lastName.equals(srcUser.getLastName())) {
+            throw new BadRequestException("Sorry, your name cannot be changed.");
+        }
+        this.password = srcUser.getPassword();
+        this.phone    = srcUser.getPhone();
+        this.email    = srcUser.getEmail();
     }
 
 //    @ManyToMany(fetch = FetchType.EAGER) // 즉시 로딩, User와 Role을 함께 조회

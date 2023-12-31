@@ -115,10 +115,9 @@ public class UserController {
 
     @PutMapping("/{username}")
     public ResponseEntity<UserDto> updateUser(@CurrentUser UserPrincipal currentUser,
-                                              @PathVariable String username,
                                               @Valid @RequestBody SignUpRequest user) {
 
-        UserDto updatedUser = userService.updateUser(username, user, UserDto.principalToDto(currentUser));
+        UserDto updatedUser = userService.updateUser(user, UserDto.principalToDto(currentUser));
         return ResponseEntity.ok(updatedUser);
     }
 }

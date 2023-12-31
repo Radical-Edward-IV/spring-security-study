@@ -17,6 +17,7 @@ import edward.iv.restapi.user.model.User;
 import edward.iv.restapi.user.repository.AddressRepository;
 import edward.iv.restapi.user.repository.UserRepository;
 import edward.iv.restapi.user.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ import java.util.Optional;
 import static edward.iv.restapi.role.RoleName.ADMIN;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -68,14 +70,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto addUser(SignUpRequest signUpRequest) {
 
+        // 사용자명 중복 체크
         if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Username is already taken");
         }
 
+        // 이메일 중복 체크
         if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Email is already taken");
         }
 
+        // 사용자 추가
         String firstName = signUpRequest.getFirstName();
 
         String lastName  = signUpRequest.getLastName();
@@ -88,13 +93,12 @@ public class UserServiceImpl implements UserService {
 
         String email     = signUpRequest.getEmail();
 
-        AddressDto addressDto  = signUpRequest.getAddress();
-
         User user = new User()
                 .setFirstName(firstName).setLastName(lastName)
                 .setUsername(username).setPassword(password)
                 .setPhone(phone).setEmail(email);
 
+        // 권한 추가
         Role role;
 
         if (userRepository.count() == 0) {
@@ -108,6 +112,9 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
 
         User result = userRepository.save(user);
+
+        // 주소 추가
+        AddressDto addressDto  = signUpRequest.getAddress();
 
         Address address = null;
 
@@ -136,12 +143,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(String username, SignUpRequest userToBeUpdated, UserDto currentUser) {
+    public UserDto updateUser(SignUpRequest userToBeUpdated, UserDto currentUser) {
+
+        String username = userToBeUpdated.getUsername();
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
 
-        if (userToBeUpdated.getUsername().equals(username) || currentUser.getRole().equals(ADMIN.toString())) {
+        // 현재 로그인한 사용자가 ADMIN || 현재 로그인한 사용자와 변경할 사용자가 동일함
+        if (currentUser.getRole().equals(ADMIN.toString()) || currentUser.getUsername().equals(username)) {
 
             Address address = null;
 
@@ -152,27 +162,15 @@ public class UserServiceImpl implements UserService {
                 address = addressRepository.findByUserId(user.getId())
                         .orElse(new Address());
 
-                address.setAddressLine01(addressToBeUpdated.getAddressLine01())
-                       .setAddressLine02(addressToBeUpdated.getAddressLine02())
-                       .setCity(addressToBeUpdated.getCity())
-                       .setState(addressToBeUpdated.getState())
-                       .setZipCode(addressToBeUpdated.getZipCode())
-                       .setUser(user);
+                address.updateAddressByDto(addressToBeUpdated);
+            } else {
+
+                addressRepository.findByUserId(user.getId())
+                        .ifPresent(addr -> addressRepository.delete(addr));
             }
 
-            user.setFirstName(userToBeUpdated.getFirstName())
-                .setLastName(userToBeUpdated.getLastName())
-                .setPassword(passwordEncoder.encode(userToBeUpdated.getPassword()))
-                .setPhone(userToBeUpdated.getPhone())
-                .setEmail(userToBeUpdated.getEmail())
-                .setAddress(address);
-
-            if (address == null) {
-                address = addressRepository.findByUserId(user.getId())
-                        .orElse(new Address());
-
-                addressRepository.delete(address);
-            }
+            user.updateUserBySignUpRequest(userToBeUpdated);
+            user.setAddress(address);
 
             return UserDto.entityToDto(userRepository.save(user));
         }

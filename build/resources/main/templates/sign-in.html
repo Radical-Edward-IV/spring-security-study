@@ -88,13 +88,14 @@
           </div>
         </div>
         <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
-          <form action="javascript:signIn()">
+<!--          <form action="javascript:signIn()">-->
+          <form action="/signin-process" method="POST">
             <div class="row">
               <div class="col-12 mb-3">
-                <input id="username" type="text" class="form-control" placeholder="Username" />
+                <input id="username" name="username" type="text" class="form-control" placeholder="Username" />
               </div>
               <div class="col-12 mb-3">
-                <input id="password" type="text" class="form-control" placeholder="Password" />
+                <input id="password" name="password" type="text" class="form-control" placeholder="Password" />
               </div>
               <div class="col-12" style="text-align: center;">
                 <input type="submit" value="Sign in" class="btn btn-primary" />
@@ -150,9 +151,9 @@
 
           document.cookie = cookie;
 
-          window.location.href = "/index?username=" + document.querySelector('#username').value;
+          window.location.href = "/home";
         }
-        else console.log("Login Failed..;");
+        else alert("Sign In Failed..;");
       }
     }
   </script>
