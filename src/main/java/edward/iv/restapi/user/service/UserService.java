@@ -1,9 +1,10 @@
 package edward.iv.restapi.user.service;
 
-import edward.iv.restapi.payload.request.SignUpRequest;
-import edward.iv.restapi.security.UserPrincipal;
-import edward.iv.restapi.user.dto.UserDto;
-import edward.iv.restapi.user.model.User;
+import edward.iv.restapi.user.payload.request.UserRequest;
+import edward.iv.restapi.security.payload.request.SignUpRequest;
+import edward.iv.restapi.role.model.dto.RoleName;
+import edward.iv.restapi.user.model.dto.UserDto;
+import edward.iv.restapi.user.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ import java.util.List;
 @Service
 public interface UserService {
 
-    public UserPrincipal getUserById(Long id);
+    public User getUserById(Long id);
 
     public List<User> getUsers();
 
@@ -21,7 +22,9 @@ public interface UserService {
 
     public Page<User> getUserByUsernameOrRealName(Pageable pageable, String username);
 
-    UserDto addUser(SignUpRequest signUpRequest);
+    UserDto addUser(UserRequest userRequest);
 
     UserDto updateUser(SignUpRequest user, UserDto currentUser);
+
+    UserDto updateUserRole(String username, RoleName roleName);
 }

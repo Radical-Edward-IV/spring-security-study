@@ -1,9 +1,8 @@
 package edward.iv.restapi.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import edward.iv.restapi.user.dto.AddressDto;
-import edward.iv.restapi.user.model.User;
-import lombok.ToString;
+import edward.iv.restapi.user.model.dto.AddressDto;
+import edward.iv.restapi.user.model.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

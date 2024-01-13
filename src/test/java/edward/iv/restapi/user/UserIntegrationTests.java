@@ -3,17 +3,14 @@ package edward.iv.restapi.user;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edward.iv.restapi.payload.request.SignInRequest;
-import edward.iv.restapi.payload.response.JwtAuthenticationResponse;
-import edward.iv.restapi.payload.response.PageResponse;
+import edward.iv.restapi.security.payload.request.SignInRequest;
+import edward.iv.restapi.security.payload.response.JwtAuthenticationResponse;
+import edward.iv.restapi.base.payload.response.PageResponse;
 import edward.iv.restapi.security.controller.AuthController;
 import edward.iv.restapi.user.controller.UserController;
-import edward.iv.restapi.user.dto.UserDto;
-import edward.iv.restapi.user.model.User;
+import edward.iv.restapi.user.model.dto.UserDto;
 import edward.iv.restapi.user.repository.UserRepository;
 import edward.iv.restapi.user.service.UserService;
-import org.hibernate.type.CollectionType;
-import org.hibernate.type.Type;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,12 +20,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
-import org.springframework.security.access.AccessDeniedException;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * <h2>통합테스트</h2>
@@ -119,6 +112,10 @@ public class UserIntegrationTests {
         }
     }
 
+    /**
+     * ⦿ 401 Unauthorized: 클라이언트가 인증되지 않았거나, 유효한 인증 정보가 부족해 요청이 거부됨.
+     * ⦿ 403 Forbidden: 서버가 해당 요청을 이해는 했지만, 권한이 없어서 요청이 거부된 상태임.
+     */
     @DisplayName("전체 사용자 조회::DBA")
     @Test
     void getAllUsersWithDBA() {
@@ -127,7 +124,7 @@ public class UserIntegrationTests {
 
         ResponseEntity<String> response = restTemplate.exchange(LOOPBACK + PORT + "/api/v1/users?page=1&size=3", HttpMethod.GET, entity, String.class);
 
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     }
 
     private <T> T mapJsonToObject(String json, TypeReference<T> t) {

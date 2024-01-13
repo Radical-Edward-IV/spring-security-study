@@ -1,6 +1,6 @@
 package edward.iv.restapi.user.repository;
 
-import edward.iv.restapi.user.model.Address;
+import edward.iv.restapi.user.model.entity.Address;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

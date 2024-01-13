@@ -78,6 +78,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         // Service
                         .requestMatchers(new MvcRequestMatcher(introspector, "/api/v1/auth/**")).permitAll()
+                        /*
+                         * ⦿ 예외의 종류와 상관없이 401 응답이 반환되는 경우
+                         *     • Spring Boot는 처리되지 않은 예외가 발생할 경우 /error로 포워딩합니다.
+                         *       /error URI에 대한 별도의 설정이 없을 경우 401 Unauthorized가 반환됩니다.
+                         *     • references
+                         *         ‣ https://spring.io/blog/2013/11/01/exception-handling-in-spring-mvc/
+                         *           1. In the event of any unhanded error, Spring Boot forwards internally to /error.
+                         */
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/error")).permitAll()
                         .requestMatchers(new MvcRequestMatcher(introspector, "/home")).permitAll()
                         .requestMatchers(new MvcRequestMatcher(introspector, "/signin-view")).permitAll()
                         .requestMatchers(new MvcRequestMatcher(introspector, "/about-view")).permitAll()
@@ -94,7 +103,7 @@ public class SecurityConfig {
                 // AuthenticationProvider 주입
                 .authenticationProvider(authenticationProvider())
                 // 인증되지 않은 사용자의 요청을 처리
-//                .exceptionHandling(config -> config.authenticationEntryPoint(unauthorizedHandler))
+                .exceptionHandling(config -> config.authenticationEntryPoint(unauthorizedHandler))
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(config -> {
                     config.loginPage("/sign-in")

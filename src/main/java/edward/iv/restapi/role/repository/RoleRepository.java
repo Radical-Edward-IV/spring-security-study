@@ -1,7 +1,7 @@
 package edward.iv.restapi.role.repository;
 
-import edward.iv.restapi.role.Role;
-import edward.iv.restapi.role.RoleName;
+import edward.iv.restapi.role.model.entity.Role;
+import edward.iv.restapi.role.model.dto.RoleName;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

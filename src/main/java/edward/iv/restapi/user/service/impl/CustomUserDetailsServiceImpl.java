@@ -1,7 +1,7 @@
 package edward.iv.restapi.user.service.impl;
 
 import edward.iv.restapi.security.UserPrincipal;
-import edward.iv.restapi.user.model.User;
+import edward.iv.restapi.user.model.entity.User;
 import edward.iv.restapi.user.repository.UserRepository;
 import edward.iv.restapi.user.service.CustomUserDetailsService;
 import jakarta.transaction.Transactional;

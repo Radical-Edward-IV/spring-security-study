@@ -1,12 +1,16 @@
 package edward.iv.restapi.user;
 
 import edward.iv.restapi.base.Utils;
-import edward.iv.restapi.payload.response.PageResponse;
-import edward.iv.restapi.user.dto.UserDto;
-import edward.iv.restapi.user.model.User;
+import edward.iv.restapi.exception.ResourceNotFoundException;
+import edward.iv.restapi.base.payload.response.PageResponse;
+import edward.iv.restapi.role.model.entity.Role;
+import edward.iv.restapi.role.repository.RoleRepository;
+import edward.iv.restapi.user.model.dto.UserDto;
+import edward.iv.restapi.user.model.entity.User;
 import edward.iv.restapi.user.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -17,14 +21,17 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
-import static edward.iv.restapi.role.RoleName.ADMIN;
-import static edward.iv.restapi.role.RoleName.USER;
+import static edward.iv.restapi.role.model.dto.RoleName.ADMIN;
+import static edward.iv.restapi.role.model.dto.RoleName.USER;
 
 @DataJpaTest
 public class UserJpaTests {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     // Fixtures
     private Pageable pageable;
@@ -73,6 +80,7 @@ public class UserJpaTests {
 
     }
 
+    @DisplayName("전체 사용자 조회")
     @Test
     void findAllUsers() {
 
@@ -91,6 +99,7 @@ public class UserJpaTests {
         Assertions.assertEquals(3, result.getData().size());
     }
 
+    @DisplayName("이메일 중복 체크")
     @Test
     void existsByEmailTest() {
 
@@ -114,5 +123,27 @@ public class UserJpaTests {
         result.getData().forEach(user -> {
             Assertions.assertTrue(expected.contains(user));
         });
+    }
+
+    @DisplayName("사용자 권한 변경")
+    @Test
+    public void updateUserRoleTest() {
+
+        Long userId = 2L;
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId.toString()));
+
+        Assertions.assertEquals(USER, user.getRole().getName());
+
+        Role admin = roleRepository.findByName(ADMIN)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId.toString()));
+
+        userRepository.save(user.setRole(admin));
+
+        user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId.toString()));
+
+        Assertions.assertEquals(ADMIN, user.getRole().getName());
     }
 }

@@ -1,9 +1,7 @@
 package edward.iv.restapi.base;
 
 import edward.iv.restapi.exception.BadRequestException;
-import edward.iv.restapi.payload.response.PageResponse;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import edward.iv.restapi.base.payload.response.PageResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

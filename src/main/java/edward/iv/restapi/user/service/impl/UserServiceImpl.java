@@ -1,19 +1,19 @@
 package edward.iv.restapi.user.service.impl;
 
+import edward.iv.restapi.user.payload.request.UserRequest;
 import edward.iv.restapi.exception.ApiException;
 import edward.iv.restapi.exception.AppException;
 import edward.iv.restapi.exception.ResourceNotFoundException;
 import edward.iv.restapi.exception.UnauthorizedException;
-import edward.iv.restapi.payload.request.SignUpRequest;
-import edward.iv.restapi.payload.response.ApiResponse;
-import edward.iv.restapi.role.Role;
-import edward.iv.restapi.role.RoleName;
+import edward.iv.restapi.security.payload.request.SignUpRequest;
+import edward.iv.restapi.base.payload.response.ApiResponse;
+import edward.iv.restapi.role.model.entity.Role;
+import edward.iv.restapi.role.model.dto.RoleName;
 import edward.iv.restapi.role.repository.RoleRepository;
-import edward.iv.restapi.security.UserPrincipal;
-import edward.iv.restapi.user.dto.AddressDto;
-import edward.iv.restapi.user.dto.UserDto;
-import edward.iv.restapi.user.model.Address;
-import edward.iv.restapi.user.model.User;
+import edward.iv.restapi.user.model.dto.AddressDto;
+import edward.iv.restapi.user.model.dto.UserDto;
+import edward.iv.restapi.user.model.entity.Address;
+import edward.iv.restapi.user.model.entity.User;
 import edward.iv.restapi.user.repository.AddressRepository;
 import edward.iv.restapi.user.repository.UserRepository;
 import edward.iv.restapi.user.service.UserService;
@@ -26,9 +26,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
-import static edward.iv.restapi.role.RoleName.ADMIN;
+import static edward.iv.restapi.role.model.dto.RoleName.ADMIN;
 
 @RequiredArgsConstructor
 @Transactional
@@ -44,10 +43,7 @@ public class UserServiceImpl implements UserService {
     private final AddressRepository addressRepository;
 
     @Override
-    public UserPrincipal getUserById(Long id) {
-        User user = userRepository.getReferenceById(id);
-        return UserPrincipal.create(user);
-    }
+    public User getUserById(Long id) { return userRepository.getReferenceById(id); }
 
     @Override
     public List<User> getUsers() { return userRepository.findAll(); }
@@ -67,31 +63,31 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
-    @Override
-    public UserDto addUser(SignUpRequest signUpRequest) {
+//    @Override
+    public UserDto addUser(UserRequest userRequest) {
 
         // 사용자명 중복 체크
-        if (Boolean.TRUE.equals(userRepository.existsByUsername(signUpRequest.getUsername()))) {
+        if (Boolean.TRUE.equals(userRepository.existsByUsername(userRequest.getUsername()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Username is already taken");
         }
 
         // 이메일 중복 체크
-        if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
+        if (Boolean.TRUE.equals(userRepository.existsByEmail(userRequest.getEmail()))) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Email is already taken");
         }
 
         // 사용자 추가
-        String firstName = signUpRequest.getFirstName();
+        String firstName = userRequest.getFirstName();
 
-        String lastName  = signUpRequest.getLastName();
+        String lastName  = userRequest.getLastName();
 
-        String username  = signUpRequest.getUsername();
+        String username  = userRequest.getUsername();
 
-        String password  = passwordEncoder.encode(signUpRequest.getPassword());
+        String password  = passwordEncoder.encode(userRequest.getPassword());
 
-        String phone     = signUpRequest.getPhone();
+        String phone     = userRequest.getPhone();
 
-        String email     = signUpRequest.getEmail();
+        String email     = userRequest.getEmail();
 
         User user = new User()
                 .setFirstName(firstName).setLastName(lastName)
@@ -114,7 +110,7 @@ public class UserServiceImpl implements UserService {
         User result = userRepository.save(user);
 
         // 주소 추가
-        AddressDto addressDto  = signUpRequest.getAddress();
+        AddressDto addressDto  = userRequest.getAddress();
 
         Address address = null;
 
@@ -177,5 +173,19 @@ public class UserServiceImpl implements UserService {
 
         ApiResponse apiResponse = new ApiResponse(Boolean.FALSE, "You don't have permission to update profile of: " + username);
         throw new UnauthorizedException(apiResponse);
+    }
+
+    @Override
+    public UserDto updateUserRole(String username, RoleName roleName) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new ResourceNotFoundException("Role", "name", roleName.name()));
+
+        user.setRole(role);
+
+        return UserDto.entityToDto(userRepository.save(user));
     }
 }

@@ -1,6 +1,6 @@
 package edward.iv.restapi.exception;
 
-import edward.iv.restapi.payload.response.ApiResponse;
+import edward.iv.restapi.base.payload.response.ApiResponse;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

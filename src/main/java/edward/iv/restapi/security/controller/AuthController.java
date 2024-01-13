@@ -1,39 +1,20 @@
 package edward.iv.restapi.security.controller;
 
-import edward.iv.restapi.exception.ApiException;
-import edward.iv.restapi.exception.AppException;
-import edward.iv.restapi.payload.request.SignInRequest;
-import edward.iv.restapi.payload.request.SignUpRequest;
-import edward.iv.restapi.payload.response.ApiResponse;
-import edward.iv.restapi.payload.response.JwtAuthenticationResponse;
-import edward.iv.restapi.role.Role;
-import edward.iv.restapi.role.RoleName;
-import edward.iv.restapi.role.repository.RoleRepository;
+import edward.iv.restapi.user.payload.request.UserRequest;
+import edward.iv.restapi.base.payload.response.ApiResponse;
+import edward.iv.restapi.security.payload.response.JwtAuthenticationResponse;
 import edward.iv.restapi.security.JwtTokenProvider;
-import edward.iv.restapi.security.UserPrincipal;
-import edward.iv.restapi.user.dto.UserDto;
-import edward.iv.restapi.user.model.Address;
-import edward.iv.restapi.user.model.User;
-import edward.iv.restapi.user.repository.AddressRepository;
-import edward.iv.restapi.user.repository.UserRepository;
+import edward.iv.restapi.user.model.dto.UserDto;
 import edward.iv.restapi.user.service.UserService;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import jakarta.websocket.Session;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,7 +38,7 @@ public class AuthController {
     private final UserDetailsService userDetailsService;
 
     @PostMapping("/signin")
-    public ResponseEntity<JwtAuthenticationResponse> authenticationUser(@Valid @RequestBody SignInRequest signInRequest) {
+    public ResponseEntity<JwtAuthenticationResponse> authenticationUser(@Valid @RequestBody UserRequest signInRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(signInRequest.getUsername(), signInRequest.getPassword()));
@@ -68,7 +49,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody UserRequest signUpRequest) {
 
         UserDto newcomer = userService.addUser(signUpRequest);
 

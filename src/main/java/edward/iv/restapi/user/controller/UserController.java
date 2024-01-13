@@ -1,11 +1,13 @@
 package edward.iv.restapi.user.controller;
 
-import edward.iv.restapi.payload.request.SignUpRequest;
-import edward.iv.restapi.payload.response.PageResponse;
-import edward.iv.restapi.security.CurrentUser;
+import edward.iv.restapi.annotation.CurrentUser;
+import edward.iv.restapi.base.payload.response.PageResponse;
+import edward.iv.restapi.role.model.dto.RoleName;
 import edward.iv.restapi.security.UserPrincipal;
-import edward.iv.restapi.user.dto.UserDto;
-import edward.iv.restapi.user.model.User;
+import edward.iv.restapi.security.payload.request.SignUpRequest;
+import edward.iv.restapi.user.model.dto.UserDto;
+import edward.iv.restapi.user.model.entity.User;
+import edward.iv.restapi.user.payload.request.UserRequest;
 import edward.iv.restapi.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,15 +15,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static edward.iv.restapi.base.AppConstants.ASC;
 import static edward.iv.restapi.base.AppConstants.DESC;
@@ -41,15 +39,22 @@ public class UserController {
     private final UserService userService;
 
     /**
-     * 로그인 사용자 정보를 조회합니다.
+     * 신규 사용자를 등록합니다.
      *
-     * @param currentUser SecurityContext에 Authentication 객체를 참조하여 로그인 사용자 정보를 가져온다.
+     * @param userRequest 신규 사용자 정보
      * @return ResponseEntity
+     * @throws URISyntaxException
      */
-    @GetMapping("/me")
-    public ResponseEntity<UserDto> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDto> addUser(@Valid @RequestBody UserRequest userRequest) throws URISyntaxException {
 
-        return ResponseEntity.ok(UserDto.principalToDto(currentUser));
+        UserDto newcomer = userService.addUser(userRequest);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/users/{username}")
+                .buildAndExpand(newcomer.getUsername()).toUri();
+
+        return ResponseEntity.created(location).body(newcomer);
     }
 
     /**
@@ -74,6 +79,18 @@ public class UserController {
     }
 
     /**
+     * 로그인 사용자 정보를 조회합니다.
+     *
+     * @param currentUser SecurityContext에 Authentication 객체를 참조하여 로그인 사용자 정보를 가져온다.
+     * @return ResponseEntity
+     */
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+
+        return ResponseEntity.ok(UserDto.principalToDto(currentUser));
+    }
+
+    /**
      * 사용자 ID 또는 사용자명을 키워드로 사용자 목록을 조회합니다.
      *
      * @param username 사용자 ID 또는 사용자명
@@ -95,29 +112,27 @@ public class UserController {
     }
 
     /**
-     * 신규 사용자를 등록합니다.
+     * 사용자 정보를 갱신합니다.<br />
+     * • ADMIN 권한이 있는 사용자는 모든 사용자를 갱신할 수 있습니다.<br />
+     * • 로그인 사용자는 자신의 정보를 갱신할 수 있습니다.
      *
-     * @param signUpRequest 신규 사용자 정보
+     * @param currentUser
+     * @param user
      * @return ResponseEntity
-     * @throws URISyntaxException
      */
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserDto> addUser(@Valid @RequestBody SignUpRequest signUpRequest) throws URISyntaxException {
-
-        UserDto newcomer = userService.addUser(signUpRequest);
-
-        URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/v1/users/{username}")
-                .buildAndExpand(newcomer.getUsername()).toUri();
-
-        return ResponseEntity.created(location).body(newcomer);
-    }
-
     @PutMapping("/{username}")
     public ResponseEntity<UserDto> updateUser(@CurrentUser UserPrincipal currentUser,
                                               @Valid @RequestBody SignUpRequest user) {
 
         UserDto updatedUser = userService.updateUser(user, UserDto.principalToDto(currentUser));
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @PatchMapping("/{username}/give/{role-name}")
+    public ResponseEntity<UserDto> updateUserRole(@PathVariable String username, @PathVariable RoleName roleName) {
+
+        UserDto user = userService.updateUserRole(username, roleName);
+
+        return ResponseEntity.ok(user);
     }
 }
