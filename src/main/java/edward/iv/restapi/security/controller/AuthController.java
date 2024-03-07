@@ -1,13 +1,17 @@
 package edward.iv.restapi.security.controller;
 
-import edward.iv.restapi.user.payload.request.UserRequest;
 import edward.iv.restapi.base.payload.response.ApiResponse;
-import edward.iv.restapi.security.payload.response.JwtAuthenticationResponse;
+import edward.iv.restapi.debug.model.dto.DebugInfo;
+import edward.iv.restapi.exception.ApiException;
 import edward.iv.restapi.security.JwtTokenProvider;
+import edward.iv.restapi.security.payload.request.SignInRequest;
+import edward.iv.restapi.security.payload.request.SignUpRequest;
+import edward.iv.restapi.security.payload.response.JwtAuthenticationResponse;
 import edward.iv.restapi.user.model.dto.UserDto;
 import edward.iv.restapi.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,12 +26,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
 //    private static final String USER_ROLE_NOT_SET = "User role not set";
+
+    private final DebugInfo debug;
 
     private final AuthenticationManager authenticationManager;
 
@@ -38,7 +45,7 @@ public class AuthController {
     private final UserDetailsService userDetailsService;
 
     @PostMapping("/signin")
-    public ResponseEntity<JwtAuthenticationResponse> authenticationUser(@Valid @RequestBody UserRequest signInRequest) {
+    public ResponseEntity<JwtAuthenticationResponse> authenticationUser(@Valid @RequestBody SignInRequest signInRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(signInRequest.getUsername(), signInRequest.getPassword()));
@@ -49,7 +56,11 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody UserRequest signUpRequest) {
+    public ResponseEntity<ApiResponse> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) throws ApiException {
+
+        debug.getEndpoint().add("/api/v1/auth/signup");
+
+        log.debug("[{}] {} - SignUpRequest: {}", debug.getDebugId(), debug.getEndpoint().get(0), signUpRequest);
 
         UserDto newcomer = userService.addUser(signUpRequest);
 

@@ -1,36 +1,32 @@
 package edward.iv.restapi.exception;
 
-import org.springframework.http.HttpStatus;
+import edward.iv.restapi.exception.payload.response.ErrorResponse;
 
 import java.io.Serial;
 
 public class ApiException extends RuntimeException {
 
     @Serial
-    private static final long serialVersionUID = -2756282230496251867L;
+    private static final long serialVersionUID = -1955880542027836285L;
 
-    private final HttpStatus status;
+    private ErrorResponse errorResponse;
 
-    private final String message;
+    public ApiException(Exception e) { super(e); }
 
-    public ApiException(HttpStatus status, String message) {
+    public ApiException(ErrorResponse errorResponse) { this.errorResponse = errorResponse; }
 
-        this.status = status;
-        this.message = message;
+    public ApiException(Exception ex, ErrorResponse error) {
+
+        super(ex);
+
+        this.errorResponse = error;
     }
 
-    public ApiException(HttpStatus status, String message, Throwable exception) {
+    public ApiException(ErrorResponse errorResponse, Throwable exception) {
 
         super(exception);
-        this.status = status;
-        this.message = message;
+        this.errorResponse = errorResponse;
     }
 
-    public HttpStatus getStatus() {
-        return this.status;
-    }
-
-    public String getMessage() {
-        return this.message;
-    }
+    public ErrorResponse getErrorResponse() { return this.errorResponse; }
 }

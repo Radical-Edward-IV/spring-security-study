@@ -1,5 +1,6 @@
 package edward.iv.restapi.user.service;
 
+import edward.iv.restapi.exception.ApiException;
 import edward.iv.restapi.user.payload.request.UserRequest;
 import edward.iv.restapi.security.payload.request.SignUpRequest;
 import edward.iv.restapi.role.model.dto.RoleName;
@@ -22,7 +23,7 @@ public interface UserService {
 
     public Page<User> getUserByUsernameOrRealName(Pageable pageable, String username);
 
-    UserDto addUser(UserRequest userRequest);
+    UserDto addUser(SignUpRequest userRequest);
 
     UserDto updateUser(SignUpRequest user, UserDto currentUser);
 

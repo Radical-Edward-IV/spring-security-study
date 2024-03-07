@@ -1,8 +1,12 @@
 package edward.iv.restapi.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import edward.iv.restapi.debug.model.dto.DebugInfo;
+import edward.iv.restapi.exception.payload.response.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -25,13 +29,34 @@ import java.io.IOException;
  *         .authenticationEntryPoint(jwtAuthenticationEntryPoint);
  */
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private final DebugInfo debug;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
 
-        log.error("Responding with unauthorized error. Message - {}", authException.getMessage());
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Sorry, You're not authorized to access this resource.");
+//        String debugId debugId= Utils.getRandomString();
+
+        log.error("[{}] Responding with unauthorized error. Message - {}", debug.getDebugId(), authException.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.authenticationFailure()
+                .debugId(debug.getDebugId());
+
+        ObjectMapper objMapper = new ObjectMapper();
+
+        String jsonString = "";
+
+        try {
+            jsonString = objMapper.writeValueAsString(errorResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        response.setStatus(errorResponse.getStatus());
+        response.setContentType("application/json");
+        response.getWriter().println(jsonString);
     }
 }

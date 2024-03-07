@@ -34,6 +34,9 @@ dependencies {
 
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
+	// implementation("org.slf4j:slf4j-api:2.0.11")
+	// testImplementation("ch.qos.logback:logback-classic:1.3.14")
+
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 

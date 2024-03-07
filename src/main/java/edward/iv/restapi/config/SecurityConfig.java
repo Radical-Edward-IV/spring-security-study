@@ -86,6 +86,7 @@ public class SecurityConfig {
                          *         ‣ https://spring.io/blog/2013/11/01/exception-handling-in-spring-mvc/
                          *           1. In the event of any unhanded error, Spring Boot forwards internally to /error.
                          */
+                        .requestMatchers(new MvcRequestMatcher(introspector, "/")).permitAll()
                         .requestMatchers(new MvcRequestMatcher(introspector, "/error")).permitAll()
                         .requestMatchers(new MvcRequestMatcher(introspector, "/home")).permitAll()
                         .requestMatchers(new MvcRequestMatcher(introspector, "/signin-view")).permitAll()

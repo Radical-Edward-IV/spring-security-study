@@ -1,15 +1,16 @@
 package edward.iv.restapi.user.service.impl;
 
-import edward.iv.restapi.user.payload.request.UserRequest;
+import edward.iv.restapi.base.payload.response.ApiResponse;
+import edward.iv.restapi.debug.model.dto.DebugInfo;
 import edward.iv.restapi.exception.ApiException;
 import edward.iv.restapi.exception.AppException;
 import edward.iv.restapi.exception.ResourceNotFoundException;
 import edward.iv.restapi.exception.UnauthorizedException;
-import edward.iv.restapi.security.payload.request.SignUpRequest;
-import edward.iv.restapi.base.payload.response.ApiResponse;
-import edward.iv.restapi.role.model.entity.Role;
+import edward.iv.restapi.exception.payload.response.ErrorResponse;
 import edward.iv.restapi.role.model.dto.RoleName;
+import edward.iv.restapi.role.model.entity.Role;
 import edward.iv.restapi.role.repository.RoleRepository;
+import edward.iv.restapi.security.payload.request.SignUpRequest;
 import edward.iv.restapi.user.model.dto.AddressDto;
 import edward.iv.restapi.user.model.dto.UserDto;
 import edward.iv.restapi.user.model.entity.Address;
@@ -19,9 +20,9 @@ import edward.iv.restapi.user.repository.UserRepository;
 import edward.iv.restapi.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -29,10 +30,13 @@ import java.util.List;
 
 import static edward.iv.restapi.role.model.dto.RoleName.ADMIN;
 
+@Slf4j
 @RequiredArgsConstructor
 @Transactional
 @Service
 public class UserServiceImpl implements UserService {
+
+    private final DebugInfo debug;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -49,7 +53,12 @@ public class UserServiceImpl implements UserService {
     public List<User> getUsers() { return userRepository.findAll(); }
 
     @Override
-    public Page<User> getUsers(Pageable pageable) { return userRepository.findAll(pageable); }
+    public Page<User> getUsers(Pageable pageable) {
+
+        log.debug("[{}] UserService.getUsers", debug.getDebugId());
+
+        return userRepository.findAll(pageable);
+    }
 
     @Override
     public Page<User> getUserByUsernameOrRealName(Pageable pageable, String username) {
@@ -63,17 +72,33 @@ public class UserServiceImpl implements UserService {
         return users;
     }
 
-//    @Override
-    public UserDto addUser(UserRequest userRequest) {
+    @Override
+    public UserDto addUser(SignUpRequest userRequest) {
+
+        debug.getClassNameAndMethod().add("UserService.addUser");
+
+        log.debug("[{}] {} - SignUpRequest: {}", debug.getDebugId(), debug.getClassNameAndMethod().get(0), userRequest);
 
         // 사용자명 중복 체크
         if (Boolean.TRUE.equals(userRepository.existsByUsername(userRequest.getUsername()))) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Username is already taken");
+
+            throw new ApiException(ErrorResponse.invalidRequest()
+                    .debugId(debug.getDebugId())
+                    .body()
+                    .issue("DUPLICATED USERNAME")
+                    .description("The username is duplicated")
+                    .errorFieldAndValue("/username", userRequest.getUsername()));
         }
 
         // 이메일 중복 체크
         if (Boolean.TRUE.equals(userRepository.existsByEmail(userRequest.getEmail()))) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "Email is already taken");
+
+            throw new ApiException(ErrorResponse.invalidRequest()
+                    .debugId(debug.getDebugId())
+                    .body()
+                    .issue("DUPLICATED EMAIL")
+                    .description("The email is duplicated")
+                    .errorFieldAndValue("/email", userRequest.getEmail()));
         }
 
         // 사용자 추가
@@ -107,7 +132,9 @@ public class UserServiceImpl implements UserService {
 
         user.setRole(role);
 
-        User result = userRepository.save(user);
+        User result;
+
+        result = userRepository.save(user);
 
         // 주소 추가
         AddressDto addressDto  = userRequest.getAddress();

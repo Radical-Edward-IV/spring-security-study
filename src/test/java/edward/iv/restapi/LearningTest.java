@@ -68,62 +68,10 @@ public class LearningTest {
     }
 
     @Test
-    void extendsTest() {
+    public void enumTest() {
 
+        String role = "SALESMAN";
+
+        RoleName roleName = RoleName.valueOf(role);
     }
-
-    private class Parent {
-
-        private String parentName;
-
-        private int parentAge;
-
-        public Parent(String parentName, int parentAge) {
-            this.parentName = parentName;
-            this.parentAge  = parentAge;
-        }
-
-        public String getName() { return this.parentName; }
-
-        public int getAge() { return this.parentAge; }
-
-        public ParentBuilder builder() {
-            return new ParentBuilder();
-        }
-    }
-
-    private class ParentBuilder {
-
-        private String parentName;
-
-        private int parentAge;
-
-        public ParentBuilder parentName(String parentName) {
-            this.parentName = parentName;
-            return this;
-        }
-
-        public ParentBuilder parentAge(int parentAge) {
-            this.parentAge = parentAge;
-            return this;
-        }
-
-        public Parent build() {
-            return new Parent(this.parentName, this.parentAge);
-        }
-    }
-//    private class Child extends Parent {
-//
-//        private String childName;
-//
-//        private int childAge;
-//
-//        @Override
-//        public String getName() { return this.childName; }
-//
-//        @Override
-//        public int getAge() { return -1; }
-//
-//
-//    }
 }

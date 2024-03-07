@@ -82,8 +82,14 @@ public class UserIntegrationTests {
     @BeforeEach
     void setUp() throws JsonProcessingException {
 
-        admin = new SignInRequest("admin001", "1q2w3e4r!");
-        dba = new SignInRequest("db_admin001", "1q2w3e4r!");
+        admin = SignInRequest.builder()
+                .username("admin001")
+                .password("1q2w3e4r!")
+                .build();
+        dba = SignInRequest.builder()
+                .username("db_admin001")
+                .password("1q2w3e4r!")
+                .build();
     }
 
     @DisplayName("전체 사용자 조회::ADMIN")

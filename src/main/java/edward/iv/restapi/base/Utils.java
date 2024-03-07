@@ -7,7 +7,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Function;
 
 /**
@@ -16,6 +18,36 @@ import java.util.function.Function;
  * @author Edward Se Jong Pepelu Tivrusky IV
  */
 public class Utils {
+
+    /**
+     * 랜덤 문자열을 반환
+     * DebugId, ObjectId 채번을 위한 함수
+     *
+     * @return 랜덤 문자열
+     */
+    public static String getRandomString() {
+
+        int length = 20;
+
+        byte[] bytes = new byte[256];
+
+        new Random().nextBytes(bytes);
+
+        String randomString = new String(bytes, StandardCharsets.US_ASCII);
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < randomString.length() && 0 < length; i++) {
+            char ch = randomString.charAt(i);
+
+            if (Character.isLetterOrDigit(ch)) {
+                sb.append(ch);
+                length--;
+            }
+        }
+
+        return sb.toString();
+    }
 
     /**
      * @param page 페이지 번호
@@ -52,9 +84,8 @@ public class Utils {
      * @param sort 데이터 정렬
      * @param property 정렬 대상 속성
      * @return Pageable
-     * @throws BadRequestException
      */
-    public static Pageable getPageable(int page, int size, Sort.Direction sort, String... property) throws BadRequestException {
+    public static Pageable getPageable(int page, int size, Sort.Direction sort, String... property) {
 
         validatePageNumberAndSize(page, size);
 
