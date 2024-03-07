@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="edward.iv.restapi.user.UserServiceTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2024-02-24T04:26:45" hostname="Edwards-MacBook-Pro.local" time="0.699">
+  <properties/>
+  <testcase name="사용자 권한 변경" classname="edward.iv.restapi.user.UserServiceTests" time="0.699"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
